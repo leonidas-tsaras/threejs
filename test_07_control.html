@@ -1,0 +1,114 @@
+<html>
+	<head>
+		<title>My start three.js app</title>
+		<style>
+			body { margin: 0; }
+        </style>
+        <script src="three.js"></script>
+        <script src="js/controls/OrbitControls.js"></script>
+        <script>
+            var canvasWidth = 600, canvasHeight = 400;
+            var scene, camera, renderer, controls;
+            window.addEventListener('load', function(){
+                // Δημιουργία σκηνής
+                scene = new THREE.Scene();
+                //scene.fog = new THREE.Fog(0xffffff, 0, 20);
+                //scene.fog = new THREE.FogExp2(0xffffff, 0.01);
+
+                //Προσθέτω άξονες ΧΥΖ
+	            var axesHelper = new THREE.AxesHelper(100);
+	            scene.add(axesHelper);
+
+                // Πηγές φωτός
+                let ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // soft white light
+                //ambientLight.visible = false;
+                scene.add(ambientLight);
+
+                var pointLight = new THREE.PointLight(0xffffff, 1, 30);
+                pointLight.position.y = 7;
+                //pointLight.position.x = 3;
+                pointLight.castShadow = true;
+                //pointLight.shadow = new LightShadow(camera);
+                //pointLight.visible = false;
+                scene.add(pointLight); 
+
+                // Δημιουργία κάμερας
+                camera = new THREE.PerspectiveCamera( 75, canvasWidth/canvasHeight, 0.1, 1000 );
+                camera.position.z = 5;
+                camera.lookAt(scene.position);
+                controls = new THREE.OrbitControls(camera);
+
+                //Δημιουργία renderer και Έλεγχος για webgl
+                try {
+                    renderer = new THREE.WebGLRenderer();
+                } catch(e) {
+                    renderer = new THREE.CanvasRenderer();
+                }
+
+                //Δίνω διαστάσεις renderer
+                renderer.setSize(canvasWidth, canvasHeight);
+                
+                //Προσθέτω τον renderer στο έγγραφο (canvas)
+                document.body.appendChild(renderer.domElement);            
+
+                // Δημιουργία αντικειμένων
+                createObjects();
+                
+                // κλήση της animate
+                animate();
+            });
+
+            function createObjects() {
+                //geometries
+                let sphere = new THREE.SphereGeometry(1, 16, 16);
+                
+                //materials
+                let earthMaterial = new THREE.MeshPhongMaterial({color: 0xffffff});
+                
+                //texture
+                var earthTextureMaterial = new THREE.TextureLoader().load("textures/planets/earth_atmos_2048.jpg");
+                earthMaterial.map = earthTextureMaterial;
+
+                //bump
+                let bump = THREE.ImageUtils.loadTexture("textures/planets/earth_specular_2048.jpg");
+                earthMaterial.bumpMap = bump;            
+
+                //mesh
+                let earthMesh = new THREE.Mesh(sphere, earthMaterial);
+                earthMesh.name = "earth";
+
+                //add meshes to scene
+                scene.add(earthMesh);                
+
+            }
+
+            function animate() {
+                requestAnimationFrame( animate );
+
+                let earth = scene.getObjectByName("earth");
+                earth.rotation.y += 0.01;
+
+                controls.update();
+                renderer.render(scene, camera);
+            };
+
+            document.addEventListener("keypress", function() {
+                //alert(event.target);
+                //console.log(event.charCode);
+                let cc = event.charCode;
+                if(cc == 32) { // space
+                    console.log("you pressed space");
+                }
+                if(cc == 113) { //q
+                    console.log("you pressed q");
+                }
+
+
+            });
+
+        </script> 
+	</head>
+	<body>
+
+	</body>
+</html>

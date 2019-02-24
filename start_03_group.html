@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<title>My start three.js app</title>
+		<style>
+			body { margin: 0; }
+			canvas { width: 100%; height: 100% }
+        </style>    
+        <script src="three.js"></script>
+        <script src="js/controls/OrbitControls.js"></script>
+        <script src="mylibrary.js"></script>
+        <script>
+            var scene, camera, renderer, controls;
+            window.addEventListener('load', function(){
+                // Δημιουργία σκηνής
+                scene = new THREE.Scene();
+                //scene.fog = new THREE.Fog(0xffffff, 0, 20);
+                //scene.fog = new THREE.FogExp2(0xffffff, 0.01);
+
+                //Προσθέτω άξονες ΧΥΖ
+	            var axesHelper = new THREE.AxesHelper(100);
+	            scene.add(axesHelper);
+
+                // Πηγές φωτός
+                let ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // soft white light
+                //ambientLight.visible = false;
+                scene.add(ambientLight);
+
+                var pointLight = new THREE.PointLight(0xffffff, 1, 30);
+                pointLight.position.y = 7;
+                //pointLight.position.x = 3;
+                pointLight.castShadow = true;
+                //pointLight.shadow = new LightShadow(camera);
+                //pointLight.visible = false;
+                scene.add(pointLight); 
+
+                // Δημιουργία κάμερας
+                camera = new THREE.PerspectiveCamera( 75, window.innerWidth/window.innerHeight, 0.1, 1000 );
+                camera.position.z = 5;
+                camera.lookAt(scene.position);
+                controls = new THREE.OrbitControls(camera);
+
+                //Δημιουργία renderer και Έλεγχος για webgl
+                try {
+                    renderer = new THREE.WebGLRenderer();
+                } catch(e) {
+                    renderer = new THREE.CanvasRenderer();
+                }
+
+                //Δίνω διαστάσεις renderer
+                renderer.setSize( window.innerWidth, window.innerHeight );
+                
+                //Προσθέτω τον renderer στο έγγραφο (canvas)
+                document.body.appendChild(renderer.domElement);            
+
+                // Δημιουργία αντικειμένων
+                project();
+                
+                // κλήση της animate
+                animate();
+            });
+        </script> 
+	</head>
+	<body>
+
+	</body>
+</html>
