@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@v0.164.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.164.0/examples/jsm/"
+          }
+        }
+      </script>
+</head>
+<body>
+    
+
+    <script type = "module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import {rotateAroundY, loadImageTexture, onResize} from "./modules.js";
+
+        const scene = new THREE.Scene();
+        //scene.background = new THREE.Color('skyblue');
+        //scene.background = loadImageTexture("images/space.jpg");
+        const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 0.1, 10000 );
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild(renderer.domElement);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        camera.position.z = 1200;
+        //resize window
+        window.addEventListener('resize', () => onResize(camera, renderer));
+        //helpers
+        scene.add(new THREE.AxesHelper( 5 ));
+
+        scene.add(new THREE.GridHelper(10, 10));
+        
+        //lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1); // soft white light
+        scene.add( ambientLight );
+
+        const directionalLight = new THREE.DirectionalLight( 0xffffff, 5);
+        directionalLight.position.set(4, 1, 0);
+        scene.add( directionalLight );
+
+        let bgImage = loadImageTexture("images/center.jpg");
+        bgImage.mapping = THREE.EquirectangularReflectionMapping;
+        bgImage.colorSpace = THREE.SRGBColorSpace;
+
+        const sphere = new THREE.SphereGeometry(2500, 256, 256);
+        const material = new THREE.MeshStandardMaterial({side: THREE.BackSide});
+        const mesh = new THREE.Mesh(sphere, material);
+        mesh.material.map = bgImage;
+        scene.add(mesh);
+
+
+        //earth
+        const earthGeometry = new THREE.SphereGeometry(200, 256, 256);
+        const earthMaterial = new THREE.MeshPhongMaterial({ map: loadImageTexture("images/earth.jpg") } );
+        earthMaterial.bumpMap = loadImageTexture("images/earth_bump.jpg");
+        earthMaterial.bumpScale = 10;
+        const earth = new THREE.Mesh( earthGeometry, earthMaterial); 
+        scene.add(earth);
+
+        //moon
+        const moonGeometry = new THREE.SphereGeometry(50, 256, 256);
+        const moonMaterial = new THREE.MeshPhongMaterial({ map: loadImageTexture("images/moon.jpg") } );
+        const moon = new THREE.Mesh( moonGeometry, moonMaterial); 
+        moon.position.x = 15;
+        scene.add(moon);        
+    
+        let step = 0;
+        (function animate() {
+            earth.rotation.y += 0.001;
+            moon.rotation.y += 0.001;
+
+            step -= 0.2;
+            const v = rotateAroundY(step, 1000);
+            moon.position.set(v.x, v.y, v.z);
+
+            requestAnimationFrame( animate );
+            renderer.render(scene, camera);
+
+        })();
+
+/* function render(time) {
+  time *= 0.001;  // convert time to seconds
+ 
+  cubes.forEach((cube, ndx) => {
+    const speed = 1 + ndx * .1;
+    const rot = time * speed;
+    cube.rotation.x = rot;
+    cube.rotation.y = rot;
+  }); */
+
+    </script>
+</body>
+</html>

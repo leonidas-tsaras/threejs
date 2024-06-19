@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    </style>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@v0.164.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@v0.164.0/examples/jsm/"
+          }
+        }
+      </script>
+</head>
+<body>
+    
+
+    <script type = "module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import {loadImageTexture, rotateAroundY, onResize} from "./modules.js";
+        import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+        import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild(renderer.domElement);
+        const controls = new OrbitControls(camera, renderer.domElement);
+        camera.position.z = 100;
+
+        //resize window
+        window.addEventListener('resize', () => onResize(camera, renderer));
+
+        //helpers
+        scene.add(new THREE.AxesHelper( 5 ));
+        scene.add(new THREE.GridHelper(10, 10));
+        
+        //lights
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5); // soft white light
+        scene.add( ambientLight );
+
+        const directionalLight = new THREE.DirectionalLight( 0xffffff, 5);
+        directionalLight.position.set(1, 1, 0);
+        scene.add( directionalLight );
+
+        const pointLight = new THREE.PointLight( 0xffffff, 10);
+        pointLight.position.set(0, 1.5, 0);
+        //scene.add( pointLight );
+
+        const spotLight = new THREE.SpotLight(0xffffff, 100);
+        spotLight.position.set(0, 0, 5); //z, 5
+        //scene.add(spotLight);
+
+        // create an AudioListener and add it to the camera
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
+
+        // create a global audio source
+        const sound = new THREE.Audio(listener);
+
+        scene.add(sound);
+
+        // load a sound and set it as the Audio object's buffer
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load( 'sounds/music.mp3', ( buffer ) => {
+            sound.setBuffer( buffer );
+            sound.setLoop( true );
+            sound.setVolume( 0.5 );
+            sound.play();
+        });
+
+
+        (function animate() {
+
+            renderer.render(scene, camera);
+            requestAnimationFrame( animate );
+        })();
+        
+    </script>
+</body>
+</html>
